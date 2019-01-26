@@ -1,0 +1,14 @@
+/*
+
+app-template.css overrides
+
+remove this comment if used
+remove this file if not
+
+*/
+.no-task-tip {
+	padding: 10px 0 10px 10px;
+	display: block;
+	border-bottom: 1px solid #ededed;
+	color: #777
+}
