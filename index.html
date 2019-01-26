@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<<meta charset="utf-8">
+	<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+		  <meta name="viewport" content="width=device-width, user-scalable=no,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Template • TodoMVC</title>
 	<link rel="stylesheet" href="node_modules/todomvc-common/base.css">
 	<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
@@ -11,31 +12,53 @@
 	<link rel="stylesheet" href="css/app.css">
 	<script src="./js/vuev2.5.21.js"></script>
 </head>
-
 <body>
 	<section class="todoapp" id="app">
+		<!--语言切换-->
+		<!-- <ol class="filters mybtn">
+			<li>
+				<a href="#" class="completed!=completed" @click="china">中文</a>
+			</li>
+			<li>
+				<a href="#" class="completed!=completed">English</a>
+			</li>
+		</ol> -->
 		<header class="header">
 			<h1>todos</h1>
-			<input class="new-todo" placeholder="What needs to be done?" autofocus v-model="name" @keyup.enter="add">
+			<input class="new-todo"
+			 placeholder="What needs to be done?" 
+			 autofocus v-model="name"
+			  @keyup.enter="add">
 		</header>
 		<!-- This section should be hidden by default and shown when there are todos -->
 		<section class="main">
 			<input id="toggle-all" class="toggle-all" type="checkbox">
 			<label for="toggle-all">Mark all as complete</label>
-			<span class="no-task-tip" v-show="!list.length">No tasks have been added</span>
+			<!-- <span class="no-task-tip" v-show="!list.length">{{msg | msgFormat('没有添加任何任务')}}</span> -->
+			<span class="no-task-tip" v-show="!list.length">{{msg }}</span>
 			<ul class="todo-list" v-show="list.length">
 				<!-- These are here just to show the structure of the list items -->
 				<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
 				<!-- <li  v-for="(item,index) in list" :key="item.id" :class="item.flag ? 'todo completed' : 'todo' "  > -->
-				<li v-for="(item,index) in filterData" :key="item.id" class="name" :class="{completed: item.flag,editing:item===edtorTodos }">
+				<li v-for="(item,index) in filterData" 
+				 :key="item.id"
+				 class="name" 
+				 v-bind:class="{completed: item.flag,editing:item===edtorTodos }">
 					<div class="view">
 						<input class="toggle" type="checkbox" v-model="item.flag">
 						<!-- <label>{{item.id}}---{{item.name}}</label> -->
-						<label @dbclick="edtorTodo(item)">{{item.name}}</label>
+						<label  @dblclick="edtorTodo(item)" >{{item.name}}</label>
 						<button class="destroy" @click="del(index)"></button>
 					</div>
-					<input class="edit" value="Rule the web">
-
+					<input 
+						class="edit"
+                        type="text"
+                        v-focus="edtorTodos===item"
+                        v-model="item.title"
+                        @blur="edtoEnd(item)"
+                        @keyup.enter="edtoEnd(item)"
+                        @keyup.esc="cancelEdit(item)"
+						/>
 				</li>
 			</ul>
 		</section>
@@ -46,13 +69,16 @@
 			<!-- Remove this if you don't implement routing -->
 			<ul class="filters">
 				<li>
-					<a :class="{selected:visibility!== 'unCompleted' && visibility!=='completed'}" href="#all">All</a>
+					<a :class="{selected:visibility!== 'unCompleted' && visibility!=='completed'}" 
+					href="#all">All</a>
 				</li>
 				<li>
-					<a :class="{selected:visibility === 'unCompleted'}" href="#unCompleted">unCompleted</a>
+					<a :class="{selected:visibility === 'unCompleted'}" 
+					href="#unCompleted">unCompleted</a>
 				</li>
 				<li>
-					<a :class="{selected:visibility === 'completed'}" href="#completed">Completed</a>
+					<a :class="{selected:visibility === 'completed'}"
+					 href="#completed">Completed</a>
 				</li>
 			</ul>
 			<!-- Hidden if no completed items are left ↓ -->
@@ -71,6 +97,7 @@
 	<script src="node_modules/todomvc-common/base.js"></script>
 	<script src="js/app.js"></script>
 	<script>
+		
 		//存取localStorage中的数据
 		var store = {
 			save(key, value) {
@@ -82,14 +109,17 @@
 		}
 		//list取出所有的值
 		var list = store.fetch("storeData");
-		var vm = new Vue({
+	//	Vue.filter=('msgFormat',(msg,arg)=> msg.replace(/No tasks have been added/g,arg))
+		 var vm = new Vue({
 			el: "#app",
 			data: {
 				name: '',
 				list,
 				flag: false,
-				edtorTodos: '', //记录正在编辑的数据,
-				visibility: "all",
+				edtorTodos:"", //记录正在编辑的数据,
+				beforeTitle:"",//记录正在编辑的数据
+				visibility: "all",//通过这个属性值的变化对数据进行筛选
+				msg:"No tasks have been added"
 			},
 			watch: {
 				list: {
@@ -114,6 +144,25 @@
 					console.log(index)
 					this.list.splice(index, 1)
 				},
+				edtorTodo(item){//编辑任务
+					this.beforeTitle = item.name;
+					this.edtorTodos = item;
+				},
+				edtoEnd(item){//编辑完成
+					this.edtorTodos=""
+				},
+				china(){
+					console.log(11111111);	
+				}
+			},
+			directives:{
+				"focus":{
+					update(el,binding){
+						if(binding.value){
+							el.focus();
+						}
+					}
+				}
 			},
 			computed: {
 				//计算当前完成
